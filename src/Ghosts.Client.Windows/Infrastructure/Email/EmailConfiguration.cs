@@ -138,7 +138,7 @@ public class EmailConfiguration
         var firstName = "";
         var lastName = "";
         var samAccountName = "";
-        var name = "";
+        var name = Environment.UserName;
         try
         {
             var user = UserPrincipal.Current;
@@ -146,7 +146,7 @@ public class EmailConfiguration
             firstName = user.GivenName;
             lastName = user.Surname;
             samAccountName = user.SamAccountName;
-            name = user.Name;
+            name = user.DisplayName ?? user.Name ?? Environment.UserName;
         }
         catch (Exception e)
         {
@@ -154,7 +154,7 @@ public class EmailConfiguration
         }
 
         var f = File.ReadAllText(ApplicationDetails.ConfigurationFiles.EmailsFooter);
-        f = f.Replace("{{from}}", this.From);
+        f = f.Replace("{{from}}", this.From.Equals("CurrentUser", StringComparison.OrdinalIgnoreCase) ? name : this.From);
         f = f.Replace("{{now}}", DateTime.Now.ToString()); // Use current culture
         f = f.Replace("{{id}}", this.Id.ToString());
         f = f.Replace("{{email}}", email);

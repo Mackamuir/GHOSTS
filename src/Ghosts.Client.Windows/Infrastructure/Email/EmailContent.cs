@@ -104,6 +104,10 @@ public class EmailContentManager
 
     private string Parse(string x)
     {
+        // Only the legacy mail corpus contains a From/Sent/To preamble.
+        if (!x.StartsWith("From:", StringComparison.OrdinalIgnoreCase))
+            return ReplaceTokens(x).Replace("\\n", Environment.NewLine).Trim();
+
         //foreach (var item in this.Configuration.EmailContent)
         //    x = x.ReplaceCaseInsensitive($"<{item.Key}/>", item.Value);
 
