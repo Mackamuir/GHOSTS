@@ -1011,36 +1011,14 @@ public class Outlookv2 : BaseHandler
 
                     replyStarted = true;
                     var emailReply = new EmailReplyManager();
-                    var replyMail = folderItem.Reply();
-
-                    using (var quoted = new StringWriter())
-                    {
-                        quoted.WriteLine(emailReply.Reply);
-                        quoted.WriteLine("");
-                        quoted.WriteLine("");
-                        quoted.WriteLine($"On {folderItem.SentOn:f}, {safeFolderItem.SenderEmailAddress} wrote:");
-                        using (var reader = new StringReader(safeFolderItem.Body))
-                        {
-                            string line;
-                            while ((line = reader.ReadLine()) != null)
-                            {
-                                quoted.Write("> ");
-                                quoted.WriteLine(line);
-                            }
-                        }
-
-                        replyMail.Body = quoted.ToString();
-                    }
-
-                    replyMail.Subject = $"RE: {folderItem.Subject}";
+                    if (string.IsNullOrWhiteSpace(emailReply.Reply)) return false;
+                    var replyMail = emailReply.CreateReply(folderItem);
 
                     var rdoMail = new SafeMailItem
                     {
                         Item = replyMail
                     };
 
-                    var r = rdoMail.Recipients.AddEx(safeFolderItem.SenderEmailAddress);
-                    r.Resolve();
                     rdoMail.Recipients.ResolveAll();
                     rdoMail.Send();
 

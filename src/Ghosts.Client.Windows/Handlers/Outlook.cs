@@ -313,40 +313,16 @@ public class Outlook : BaseHandler
             {
                 if (!folderItem.UnRead) continue;
 
-                // read sender/body via Redemption to avoid Outlook's security prompt
-                var safeFolderItem = new SafeMailItem { Item = folderItem };
                 var emailReply = new EmailReplyManager();
+                if (string.IsNullOrWhiteSpace(emailReply.Reply)) return false;
                         
-                var replyMail = folderItem.Reply();
-
-                using (var quoted = new StringWriter())
-                {
-                    quoted.WriteLine(emailReply.Reply);
-                    quoted.WriteLine("");
-                    quoted.WriteLine("");
-                    quoted.WriteLine($"On {folderItem.SentOn:f}, {safeFolderItem.SenderEmailAddress} wrote:");
-                    using (var reader = new StringReader(safeFolderItem.Body))
-                    {
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            quoted.Write("> ");
-                            quoted.WriteLine(line);
-                        }
-                    }
-
-                    replyMail.Body = quoted.ToString();
-                }
-
-                replyMail.Subject = $"RE: {folderItem.Subject}";
+                var replyMail = emailReply.CreateReply(folderItem);
 
                 var rdoMail = new SafeMailItem
                 {
                     Item = replyMail
                 };
 
-                var r = rdoMail.Recipients.AddEx(safeFolderItem.SenderEmailAddress);
-                r.Resolve();
                 rdoMail.Recipients.ResolveAll();
                 rdoMail.Send();
 
