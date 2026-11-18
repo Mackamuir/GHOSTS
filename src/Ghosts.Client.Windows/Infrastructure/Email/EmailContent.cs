@@ -175,7 +175,8 @@ public class EmailReplyManager
         try
         {
             reply.Display(false);
-            var editor = (Microsoft.Office.Interop.Word.Document)reply.GetInspector.WordEditor;
+            var inspector = new Redemption.SafeInspector { Item = reply.GetInspector };
+            var editor = (Microsoft.Office.Interop.Word.Document)inspector.WordEditor;
             // Insert above Outlook's native quote without converting or replacing its body.
             editor.Range(0, 0).InsertBefore(Reply + "\r\r");
             reply.Save();
