@@ -169,6 +169,25 @@ public class EmailReplyManager
     public string Reply { private set; get; }
     private static readonly Random _random = new Random();
 
+    public Microsoft.Office.Interop.Outlook.MailItem CreateReply(Microsoft.Office.Interop.Outlook.MailItem original)
+    {
+        var reply = original.Reply();
+        try
+        {
+            reply.Display(false);
+            var editor = (Microsoft.Office.Interop.Word.Document)reply.GetInspector.WordEditor;
+            // Insert above Outlook's native quote without converting or replacing its body.
+            editor.Range(0, 0).InsertBefore(Reply + "\r\r");
+            reply.Save();
+            return reply;
+        }
+        catch
+        {
+            reply.Close(Microsoft.Office.Interop.Outlook.OlInspectorClose.olDiscard);
+            throw;
+        }
+    }
+
     public EmailReplyManager()
     {
         try

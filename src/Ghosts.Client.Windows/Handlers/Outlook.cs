@@ -316,15 +316,13 @@ public class Outlook : BaseHandler
                 var emailReply = new EmailReplyManager();
                 if (string.IsNullOrWhiteSpace(emailReply.Reply)) return false;
                         
-                var replyMail = folderItem.Reply();
+                var replyMail = emailReply.CreateReply(folderItem);
 
                 var rdoMail = new SafeMailItem
                 {
                     Item = replyMail
                 };
 
-                // Preserve Outlook's reply header, subject and resolved recipients.
-                replyMail.Body = emailReply.Reply + Environment.NewLine + Environment.NewLine + rdoMail.Body;
                 rdoMail.Recipients.ResolveAll();
                 rdoMail.Send();
 
